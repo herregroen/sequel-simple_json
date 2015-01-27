@@ -1,26 +1,37 @@
 # Sequel::SimpleJson
 
-TODO: Write a gem description
+Provides extremely simple JSON serialization for Sequel. Only supports direct columns.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'sequel-simple_json'
+gem 'sequel-simple_json', git: 'git@git.noxqsapp.nl:gems/sequel-simple_json.git'
 ```
 
 And then execute:
 
     $ bundle
 
-Or install it yourself as:
-
-    $ gem install sequel-simple_json
-
 ## Usage
 
-TODO: Write usage instructions here
+Example model:
+
+```ruby
+  class User < Sequel::Model
+    plugin :simple_json
+
+    json_properties :firstname, :lastname, :email
+  end
+
+  # Perferms a select statement, to avoid serializing every single instance.
+  User.to_json
+  User.where{age > 10}.to_json
+
+  # Performs a select on the values hash, to avoid another database query.
+  User[1].to_json
+```
 
 ## Contributing
 
