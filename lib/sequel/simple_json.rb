@@ -32,9 +32,12 @@ module Sequel
         def to_json opts={}
           ds = self
           self.model._json_assocs.each do |assoc|
-            r  = ds.model.association_reflection(assoc)
-            m  = r[:class_name].split('::').inject(Object) {|o,c| o.const_get c}
-            ds = ds.eager_graph(assoc => proc{|ads| ads.select(m.primary_key) })
+            r = ds.model.association_reflection(assoc)
+            m = r[:class_name].split('::').inject(Object) {|o,c| o.const_get c}
+            s = []
+            s.push(k)  if k = r[:key] and m.columns.include?(k)
+            s.push(k)  if k = m.primary_key
+            ds = ds.eager_graph(assoc => proc{|ads| ads.select(*s) })
           end
           if self.model._json_props.any?
             s  = self.model._json_props
