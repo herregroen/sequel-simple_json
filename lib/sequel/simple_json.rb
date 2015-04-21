@@ -36,8 +36,8 @@ module Sequel
             m  = r[:class_name].split('::').inject(Object) {|o,c| o.const_get c}
             ds = ds.eager_graph(assoc => proc{|ads| ads.select(m.primary_key) })
           end
-          if self.model._json_attrs.any?
-            s  = self.model._json_attrs
+          if self.model._json_props.any?
+            s  = self.model._json_props
             s << self.model.primary_key unless s.include?(self.model.primary_key)
             ds = ds.select{s.map{|c|`#{ds.model.table_name}.#{c}`}}
           else
