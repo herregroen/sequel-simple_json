@@ -57,7 +57,7 @@ module Sequel
             end
           end
           ds   = ds.group{g.map{|c| `#{c}`}}
-          json = ds.all.map(&:values).to_json
+          json = ds.db[ds].all.to_json
           return json ? json.gsub(/\[null(\,\s?null)*\]/,'[]') : '[]'
         end
       end
