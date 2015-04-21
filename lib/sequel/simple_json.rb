@@ -34,9 +34,8 @@ module Sequel
           self.model._json_assocs.each do |assoc|
             r = ds.model.association_reflection(assoc)
             m = r[:class_name].split('::').inject(Object) {|o,c| o.const_get c}
-            s = []
-            s.push(k)  if k = r[:key] and m.columns.include?(k)
-            s.push(k)  if k = m.primary_key
+            s = [m.primary_key]
+            s.push(r[:key])  if r[:key] and m.columns.include?(r[:key])
             ds = ds.eager_graph(assoc => proc{|ads| ads.select(*s) })
           end
           if self.model._json_props.any?
