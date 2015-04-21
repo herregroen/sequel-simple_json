@@ -56,9 +56,8 @@ module Sequel
               ds = ds.select_append{array_agg(`\"#{assoc}\".\"#{m.primary_key}\"`).as(assoc)}
             end
           end
-          ds   = ds.group{g.map{|c| `#{c}`}}
-          json = ds.map(&:values).to_json
-          return json ? json.gsub(/\[null(\,\s?null)*\]/,'[]') : '[]'
+          ds = ds.group{g.map{|c| `#{c}`}}
+          ds.map(&:values).to_json
         end
       end
       module InstanceMethods
