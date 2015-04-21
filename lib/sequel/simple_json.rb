@@ -34,7 +34,7 @@ module Sequel
           self.model._json_assocs.each do |assoc|
             r  = ds.model.association_reflection(assoc)
             m  = r[:class_name].split('::').inject(Object) {|o,c| o.const_get c}
-            ds = ds.eager_graph(assoc => proc{|ads| ads.select(m.primay_key) })
+            ds = ds.eager_graph(assoc => proc{|ads| ads.select(m.primary_key) })
           end
           if self.model._json_attrs.any?
             s  = self.model._json_attrs
