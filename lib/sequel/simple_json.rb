@@ -35,7 +35,6 @@ module Sequel
           if self.model._json_props.any?
             s  = self.model._json_props
             s << self.model.primary_key unless s.include?(self.model.primary_key)
-            puts s.inspect
             ds = ds.select{s.map{|c|`#{ds.model.table_name}.#{c}`}}
           else
             ds = ds.select{`#{ds.model.table_name}.*`}
@@ -60,7 +59,7 @@ module Sequel
       module InstanceMethods
         def to_json opts={}
           vals = self.values
-          vals = vals.select { |k| puts(k); return self.class._json_props.include?(k) }  if self.class._json_props.any?
+          vals = vals.select { |k| self.class._json_props.include?(k) }  if self.class._json_props.any?
           self.class._json_assocs.each do |assoc|
             obj = send(assoc)
             vals[assoc] = obj.is_a?(Array) ? obj.map{|m| m[m.primary_key]} : obj[obj.primary_key]
