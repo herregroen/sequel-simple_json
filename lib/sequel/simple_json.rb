@@ -31,16 +31,10 @@ module Sequel
       module DatasetMethods
         def to_json opts={}
           ds = self
-          self.model._json_assocs.each do |assoc|
-            r = ds.model.association_reflection(assoc)
-            m = r[:class_name].split('::').inject(Object) {|o,c| o.const_get c}
-            s = [m.primary_key]
-            s.push(r[:key])  if r[:key] and m.columns.include?(r[:key])
-            ds = ds.eager_graph(assoc => proc{|ads| ads.select(*s) })
-          end
           if self.model._json_props.any?
             s  = self.model._json_props
             s << self.model.primary_key unless s.include?(self.model.primary_key)
+            puts s.inspect
             ds = ds.select{s.map{|c|`#{ds.model.table_name}.#{c}`}}
           else
             ds = ds.select{`#{ds.model.table_name}.*`}
@@ -49,6 +43,7 @@ module Sequel
           self.model._json_assocs.each do |assoc|
             r = ds.model.association_reflection(assoc)
             m = r[:class_name].split('::').inject(Object) {|o,c| o.const_get c}
+            ds = ds.association_left_join(assoc)
             if r[:cartesian_product_number] == 0
               ds = ds.select_append{`\"#{assoc}\".\"#{m.primary_key}\"`.as(assoc)}
               g << "\"#{assoc}\".\"#{m.primary_key}\""
