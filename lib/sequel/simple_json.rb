@@ -4,6 +4,7 @@ module Sequel
   module Plugins
     module SimpleJson
       module ClassMethods
+        Sequel::Plugins.inherited_instance_variables self, :@json_props => :dup, :@json_assocs => :dup
         def to_json opts={}
           self.dataset.to_json opts
         end
