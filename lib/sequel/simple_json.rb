@@ -60,7 +60,6 @@ module Sequel
         def to_json opts={}
           vals = self.values
           vals = vals.select { |k| puts(k); return self.class._json_props.include?(k) }  if self.class._json_props.any?
-          puts vals
           self.class._json_assocs.each do |assoc|
             obj = send(assoc)
             vals[assoc] = obj.is_a?(Array) ? obj.map{|m| m[m.primary_key]} : obj[obj.primary_key]
