@@ -48,7 +48,7 @@ module Sequel
               ds = ds.select_append{`\"#{assoc}\".\"#{m.primary_key}\"`.as(assoc)}
               g << "\"#{assoc}\".\"#{m.primary_key}\""
             else
-              ds = ds.select_append{array_agg(`\"#{assoc}\".\"#{m.primary_key}\"`).as(assoc)}
+              ds = ds.select_append{array_agg(`DISTINCT \"#{assoc}\".\"#{m.primary_key}\"`).as(assoc)}
             end
           end
           ds   = ds.group{g.map{|c| `#{c}`}}
