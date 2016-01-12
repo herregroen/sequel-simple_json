@@ -39,19 +39,21 @@ module Sequel
           else
             ds = ds.select{`#{ds.model.table_name}.*`}
           end
-          g = (s || self.columns).map{|c| "#{ds.model.table_name}.#{c}"}
-          self.model._json_assocs.each do |assoc|
-            r = ds.model.association_reflection(assoc)
-            m = r[:class_name].split('::').inject(Object) {|o,c| o.const_get c}
-            ds = ds.association_left_join(assoc)
-            if r[:cartesian_product_number] == 0
-              ds = ds.select_append{`\"#{assoc}\".\"#{m.primary_key}\"`.as(assoc)}
-              g << "\"#{assoc}\".\"#{m.primary_key}\""
-            else
-              ds = ds.select_append{array_agg(`DISTINCT \"#{assoc}\".\"#{m.primary_key}\"`).as(assoc)}
+          if self.model._json_assocs.any?
+            g = (s || self.columns).map{|c| "#{ds.model.table_name}.#{c}"}
+            self.model._json_assocs.each do |assoc|
+              r = ds.model.association_reflection(assoc)
+              m = r[:class_name].split('::').inject(Object) {|o,c| o.const_get c}
+              ds = ds.association_left_join(assoc)
+              if r[:cartesian_product_number] == 0
+                ds = ds.select_append{`\"#{assoc}\".\"#{m.primary_key}\"`.as(assoc)}
+                g << "\"#{assoc}\".\"#{m.primary_key}\""
+              else
+                ds = ds.select_append{array_agg(`DISTINCT \"#{assoc}\".\"#{m.primary_key}\"`).as(assoc)}
+              end
             end
+            ds = ds.group{g.map{|c| `#{c}`}}
           end
-          ds   = ds.group{g.map{|c| `#{c}`}}
           json = ds.db[ds].all.to_json
           return json ? json.gsub(/\[null(\,\s?null)*\]/,'[]') : '[]'
         end
