@@ -46,15 +46,15 @@ module Sequel
               m = r[:class_name].split('::').inject(Object) {|o,c| o.const_get c}
               ds = ds.association_left_join(assoc)
               if r[:cartesian_product_number] == 0
-                ds = ds.select_append{`\"#{m.table_name}\".\"#{m.primary_key}\"`.as(assoc)}
-                g << "\"#{m.table_name}\".\"#{m.primary_key}\""
+                ds = ds.select_append{`\"#{assoc}\".\"#{m.primary_key}\"`.as(assoc)}
+                g << "\"#{assoc}\".\"#{m.primary_key}\""
               else
-                ds = ds.select_append{array_agg(`DISTINCT \"#{m.table_name}\".\"#{m.primary_key}\"`).as(assoc)}
+                ds = ds.select_append{array_agg(`DISTINCT \"#{assoc}\".\"#{m.primary_key}\"`).as(assoc)}
               end
             end
             ds = ds.group{g.map{|c| `#{c}`}}
           end
-          json = ds.all.to_json
+          json = self.model.db[ds.sql].all.to_json
           return json ? json.gsub(/\[null(\,\s?null)*\]/,'[]') : '[]'
         end
       end
