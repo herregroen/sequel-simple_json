@@ -64,7 +64,11 @@ module Sequel
           vals = vals.select { |k| self.class._json_props.include?(k) }  if self.class._json_props.any?
           self.class._json_assocs.each do |assoc|
             obj = send(assoc)
-            vals[assoc] = obj.is_a?(Array) ? obj.map{|m| m[m.primary_key]} : obj[obj.primary_key]
+            if obj.nil?
+              vals[assoc] = nil
+            else
+              vals[assoc] = obj.is_a?(Array) ? obj.map{|m| m[m.primary_key]} : obj[obj.primary_key]
+            end
           end
           vals.to_json
         end
